@@ -1,0 +1,28 @@
+name: pv-ci
+
+on:
+  push:
+    branches:
+    - master
+    tags:
+      - '*'
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 1'  # weekly
+  workflow_dispatch:
+jobs:
+  deploy-ghcr:
+    name: Docker Image Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and Push to GitHub Container Registry
+        uses: docker/build-push-action@v1
+        with:
+          push: true
+          tags: "latest,${{github.ref_name}}"
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          repository: mmore500/pv
+          registry: ghcr.io
+          add_git_labels: true
